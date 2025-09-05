@@ -3,22 +3,22 @@
 
 # Objective
 
-Create a functional and deployable Drosera trap that:
+Deploy a **Drosera-compatible trap** that:  
 
-- Monitors ETH balance anomalies of a specific wallet,
-
-- Uses the standard collect() / shouldRespond() interface,
-
-- Triggers a response when balance deviation exceeds a given threshold (e.g., 1%),
-
-- Integrates with a separate alert contract to handle responses.
+- Monitors **ETH balance of a specific wallet**,  
+- Uses the standard `collect()` / `shouldRespond()` interface,  
+- Triggers when **balance deviation ≥ 1%**,  
+- Forwards alerts to a separate **alert contract** (`LogAlertReceiver`)
 ---
 
 # Problem
 
-Ethereum wallets involved in DAO treasury, DeFi protocol management, or vesting operations must maintain a consistent balance. Any unexpected change — loss or gain — could indicate compromise, human error, or exploit.
 
-Solution: _Monitor ETH balance of a wallet across blocks. Trigger a response if there's a significant deviation in either direction._
+Wallets related to DAOs, DeFi protocols, or vesting contracts must maintain predictable balances. Any sudden change (increase or decrease) may indicate:  
+
+- compromise,  
+- human error,  
+- exploit.  
 
 ---
 
@@ -32,23 +32,26 @@ _Pay attention to this string "address public constant target = 0xABcDEF12345678
 pragma solidity ^0.8.20;
 
 interface ITrap {
-    function collect() external returns (bytes memory);
-    function shouldRespond(bytes[] calldata data) external view returns (bool, bytes memory);
+    function collect() external view returns (bytes memory);
+    function shouldRespond(bytes[] calldata data) external pure returns (bool, bytes memory);
 }
 
 contract BalanceAnomalyTrap is ITrap {
-    address public constant target = 0xABcDEF1234567890abCDef1234567890AbcDeF12; // change 0xABcDEF1234567890abCDef1234567890AbcDeF12 to your own wallet address
-    uint256 public constant thresholdPercent = 1;
+    // твой адрес в правильном checksummed формате
+    address public constant target = 0xa0c2d7f9ce592dec82Ac008D0EB3059E43Cc794d;
+    uint256 public constant thresholdPercent = 1; // порог в процентах
 
-    function collect() external override returns (bytes memory) {
+    function collect() external view override returns (bytes memory) {
         return abi.encode(target.balance);
     }
 
-    function shouldRespond(bytes[] calldata data) external view override returns (bool, bytes memory) {
+    function shouldRespond(bytes[] calldata data) external pure override returns (bool, bytes memory) {
         if (data.length < 2) return (false, "Insufficient data");
 
         uint256 current = abi.decode(data[0], (uint256));
         uint256 previous = abi.decode(data[1], (uint256));
+
+        if (previous == 0) return (false, "Previous balance is zero");
 
         uint256 diff = current > previous ? current - previous : previous - current;
         uint256 percent = (diff * 100) / previous;
@@ -63,7 +66,6 @@ contract BalanceAnomalyTrap is ITrap {
 ```
 
 # Response Contract: LogAlertReceiver.sol
-```
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
@@ -137,10 +139,10 @@ DROSERA_PRIVATE_KEY=0x... drosera apply
 
 # Date & Author
 
-_First created: July 10, 2025_
+_First created: September 5, 2025_
 
-## Author: Danzel && Profit_Nodes 
-TG : _@Danzeliti_
+## Author: cosannostra21
+TG : @Kiladrecoot
 
-Discord: _danzel99_
+Discord: pretyhel
 
