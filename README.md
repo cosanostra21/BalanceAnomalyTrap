@@ -26,7 +26,6 @@ Wallets related to DAOs, DeFi protocols, or vesting contracts must maintain pred
 
 _Trap Contract: BalanceAnomalyTrap.sol_
 
-_Pay attention to this string "address public constant target = 0xABcDEF1234567890abCDef1234567890AbcDeF12; // change 0xABcDEF1234567890abCDef1234567890AbcDeF12 to your own wallet address"_
 ```
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -141,7 +140,7 @@ DROSERA_PRIVATE_KEY=0x... drosera apply
 
 _First created: September 5, 2025_
 
-## Author: cosannostra21
+## Author: cosanostra21
 TG : @Kiladrecoot
 
 Discord: pretyhel
